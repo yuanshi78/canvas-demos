@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+
+  <style>
+	body {
+		margin: 0;
+		padding: 0;
+	}
+
+  	canvas {
+  		background: black;
+  	}
+  </style>
+</head>
+  <body>
+    <canvas width="1920px" height="1000px" id="q"></canvas><!--For Matrix-->
+  </body>
+
+
+<script>
+	const canvas = document.getElementById('q');
+	const ctx = canvas.getContext('2d');
+
+	const alphaNum = 'abdehkmnpswxzABDEFGHKMNPQRSTWXZ123456789~!@#$%^&*()';
+	let strings = [];
+
+	ctx.font = '16px serif';
+
+	let counter = 0;
+
+	setMatrixRainfall();
+	function setMatrixRainfall() {
+		const strQnty = calcStringsQnty(); 
+		const smbQnty = calcSymbolsQnty();
+
+		for (let i = 0; i < strQnty; i++) {
+			strings.push('');
+			setTimeout(() => {
+				requestAnimationFrame(() => { showStringRain(i, smbQnty, strQnty) });
+			}, Math.round(Math.random() * 30) * strQnty);
+		}
+	}
+
+	function calcStringsQnty() {
+		return Math.round(canvas.width / 10);
+	}
+
+	function calcSymbolsQnty() {
+		return Math.round(canvas.height / 16);
+	}
+
+	function showStringRain(idx, smbQnty, strQnty) {
+  		requestAnimationFrame(() => { showStringRain(idx, smbQnty, strQnty) });
+
+  		let string = composeString(idx);	  	
+
+  	  	dislayVerticalText(string, idx, true); 
+  	  	dislayVerticalText(string, idx);
+
+
+	  	if (string.length > smbQnty + 20) {
+	  		strings[idx] = '';
+	  	}
+
+	  	delay();
+	}
+
+	function composeString(idx) {
+		let string = strings[idx];
+	  	let symbol = getRandomSymbol();
+
+	  	string += symbol;
+	  	strings[idx] = string;
+
+	  	return string;
+	}
+
+	function delay(strQnty) {		
+	  	let maxDelay = 0;	
+
+	  	if (counter < strQnty * 100000) {
+	  		maxDelay = 100000000;
+	  	} else if ((counter >= (strQnty * 100000)) && (counter < (strQnty * 500000))) {
+	  		maxDelay = 5000000;
+	  	} else {
+	  		maxDelay = 50000;
+	  	}
+  	  	for (let i = 0; i < maxDelay; i++) {}
+	  	counter++;	
+	}
+
+	function getRandomSymbol() {
+	  const idx = Math.round(Math.random() * (alphaNum.length - 1));
+	  return alphaNum[idx];
+	}
+
+	function dislayVerticalText(text, idx, clear = false) {
+	  const length = text.length;
+	  const xcoord = idx * 10;	
+	  let y = 0;
+
+
+	  for (let i = length - 1; i > 0; i--) {
+	  	if (clear) {
+	  		ctx.fillStyle = `rgba(0, 0, 0, 1)`;
+	  	} else {
+	    	ctx.fillStyle = `rgba(135, 209, 251, ${ 1 - ( 0.06 * y ) })`;
+		}
+	    y++;
+	    ctx.fillText(text[i], xcoord, i * 16);
+	  }
+	}
+</script>
+</html>

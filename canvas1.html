@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>canvas</title>
+
+	<style>
+		ul {
+			list-style: none;
+			padding: 0;
+		}
+
+		li {
+			padding-left: 20px;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="canvas" width="1000px" height="200px"></canvas>
+
+	<ul id="list">
+		<li data-id="0">1</li>
+		<li data-id="1">2</li>
+		<li data-id="2">3</li>
+	</ul>	
+</body>
+
+<script>
+	const menuTabsCoords = [0, 100, 200]; 
+
+	const canvas = document.getElementById('canvas');
+	const ctx = canvas.getContext('2d');
+
+	let bar = {
+		x1: 0,
+		y1: 0,
+		width: 100
+	};
+	let tab = {
+		x: 0,
+		width: 120
+	};
+	const maxWidth = 1000;
+
+	drawMenuLine();	
+	requestAnimationFrame(animateBarStep);
+	document.getElementById('list').onclick = selectMenuItem;
+
+	function drawMenuLine() {
+		ctx.lineWidth = 2;
+		ctx.shadowOffsetX = 0;
+		ctx.shadowOffsetY = 0;
+		ctx.shadowBlur    = 5;
+		ctx.strokeStyle = '#0C58AF';
+		ctx.shadowColor = '#0C58AF';
+
+		drawLine(0, tab.x - 40, 50, '#0C58AF');
+		drawActiveTab();
+		drawLine(tab.x + tab.width, maxWidth, 50, '#0C58AF');
+	}
+
+	function drawActiveTab() {
+		drawCurve(tab.x - 20, tab.x, 50, 3, '#0C58AF');		
+		drawLine(tab.x, tab.x + tab.width - 40, 3, '#0C58AF');
+		drawCurve(tab.x + tab.width - 20, tab.x + tab.width, 3, 50, '#0C58AF');
+	}
+
+	function drawLine(x1, x2, y, color) {
+		ctx.beginPath();
+		ctx.moveTo(x1, y);
+		ctx.lineTo(x2, y);
+		ctx.stroke();
+	}
+
+	function drawCurve(x1, x2, y1, y2, color) {
+		ctx.moveTo(x1 - 20, y1);
+		ctx.bezierCurveTo(x1, y1, x1, y2, x2, y2);
+		ctx.stroke();
+	}
+
+	function animateBarStep() {
+		animateRect();		
+		requestAnimationFrame(animateBarStep);
+	}
+
+	function animateRect() {
+		drawRect('#0C58AF', bar.width, 53, false);
+		calcBarPosition();
+		drawRect('red', bar.width, 53, true);
+	}
+
+	function drawRect(color, width, height, hasGradient) {
+		if (hasGradient) {
+			const gradient = ctx.createLinearGradient(bar.x1, bar.y1, bar.x1 + width, bar.y1);
+
+			gradient.addColorStop(0, '#0C58AF');
+			gradient.addColorStop(1 / 2, 'red');
+			gradient.addColorStop(1, '#0C58AF');
+
+			ctx.fillStyle = gradient;
+		} else {
+			ctx.fillStyle = color;
+		}
+
+		ctx.globalCompositeOperation = 'source-atop'; 
+		ctx.fillRect(bar.x1, bar.y1, width, height); 
+	} 
+
+	function calcBarPosition(maxX, start) {
+		if (bar.x1 < 1000) {
+			bar.x1 += 3;
+		} else {
+			bar.x1 = 0;
+		}
+	}
+
+	function selectMenuItem(event) {
+		const item = event.target;
+
+		if (item.tagName === 'LI') {
+			const idx = Number(item.dataset.id);
+
+			const endX = menuTabsCoords[idx];
+			animateTab(endX, tab.x < endX);
+		}
+	}
+
+	function animateTab(endX, isForward) {
+		if (isForward && (tab.x > endX)) {
+			return;
+		}
+
+		if (!isForward && (tab.x < endX)) {
+			return;
+		}
+
+		canvas.width = canvas.width;
+		tab.x = isForward ? tab.x + 40 : tab.x - 40; 
+		drawMenuLine();
+		animateRect();
+		requestAnimationFrame(animateTab.bind(null, endX, isForward));
+	}
+</script>
+</html>

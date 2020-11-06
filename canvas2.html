@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+
+  <style>
+  	canvas {
+  		background: black;
+  	}
+  </style>
+</head>
+  <body>
+    <canvas width="1920px" height="600px" id="q"></canvas><!--For Matrix-->
+  </body>
+
+
+<script>
+	const canvas = document.getElementById('q');
+	const ctx = canvas.getContext('2d');
+
+	const alphaNum = 'abdehkmnpswxzABDEFGHKMNPQRSTWXZ123456789~!@#$%^&*()';
+	let strings = [];
+
+	ctx.font = '16px serif';
+
+	setMatrixRainfall();
+	function setMatrixRainfall() {
+		const strQnty = calcStringsQnty(); 
+		const smbQnty = calcSymbolsQnty();
+
+		console.log(smbQnty);
+
+		for (let i = 0; i < strQnty; i++) {
+			strings.push('');
+			setTimeout(() => {
+				setInterval(() => {
+				  	showStringRain(i, smbQnty);
+				}, 70);
+			}, Math.round(Math.random() * 20) * 500);
+		}
+	}
+
+	function calcStringsQnty() {
+		return Math.round(canvas.width / 10);
+	}
+
+	function calcSymbolsQnty() {
+		return Math.round(canvas.height / 16);
+	}
+
+	function showStringRain(idx, smbQnty) {
+	  let string = strings[idx];
+	  let symbol = getRandomSymbol();
+	  string += symbol;
+	  strings[idx] = string;
+	  requestAnimationFrame(() => { 
+	  	dislayVerticalText(string, idx * 10, true); 
+	  	dislayVerticalText(string, idx * 10);
+	  });
+
+
+	  if (string.length > smbQnty + 20) {
+	  	strings[idx] = '';
+	  }
+	}
+
+	function getRandomSymbol() {
+	  const idx = Math.round(Math.random() * (alphaNum.length - 1));
+	  return alphaNum[idx];
+	}
+
+	function dislayVerticalText(text, xcoord, clear) {
+	  const length = text.length;
+	  let y = 0;
+
+	  for (let i = length - 1; i > 0; i--) {
+	  	if (clear) {
+	  		ctx.fillStyle = `rgba(0, 0, 0, 1)`;
+	  	} else {
+	    	ctx.fillStyle = `rgba(134, 100, 78, ${ 1 - ( 0.06 * y ) })`;
+		}
+	    y++;
+	    ctx.fillText(text[i], xcoord, i * 16);
+	  }
+	}
+</script>
+</html>
